@@ -47,7 +47,7 @@ Google Sites cannot directly host arbitrary Python app files by itself, so the p
 
 ## Quick Start
 
-Open `index.html` in a browser that supports PyScript hosting, or serve the folder with a static file server.
+Serve the project using a local server (PyScript will not run if you open the file directly)
 
 Example local server:
 
@@ -55,4 +55,4 @@ Example local server:
 python3 -m http.server 8000
 ```
 
-Then visit `http://localhost:8000/underwater-pacman/`.
+Then visit http://localhost:8000/
