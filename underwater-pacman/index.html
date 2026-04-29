@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Underwater Pac-Man Challenge</title>
+  <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css" />
+  <link rel="stylesheet" href="./styles.css?v=20260428ad" />
+  <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+  <py-config>
+    {
+      "files": {
+        "./game_content_v2.py": "./game_content_v2.py",
+        "./settings_v2.py": "./settings_v2.py"
+      }
+    }
+  </py-config>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="hero-card">
+      <div>
+        <p class="eyebrow">Underwater Arcade</p>
+        <h1>Shrimp Sweep</h1>
+        <p class="hero-copy">
+          Guide the shrimp through a tighter neon reef maze, clear the plankton dots,
+          grab bombs, dodge squid, and unlock each deeper level by answering three
+          questions in a row correctly.
+        </p>
+      </div>
+      <div class="status-cluster">
+        <div class="stat-pill"><span>Level</span><strong id="level-label">pH-ishy Business</strong></div>
+        <div class="stat-pill"><span>Score</span><strong id="score-label">0</strong></div>
+        <div class="stat-pill"><span>High Score</span><strong id="high-score-label">0</strong></div>
+        <div class="stat-pill"><span>Lives</span><strong id="lives-label">🦐 🦐 🦐</strong></div>
+      </div>
+    </header>
+
+    <main class="main-layout">
+      <section class="game-panel">
+        <div class="panel-top">
+          <div>
+            <h2>Reef Maze</h2>
+            <p id="status-text">Enter your name, choose a starting level, then start the question gate to dive in.</p>
+          </div>
+          <div class="control-row">
+            <input id="player-name" type="text" maxlength="18" placeholder="Player name" />
+            <select id="start-level">
+              <option value="0">pH-resh and cool</option>
+              <option value="1">CO₂ncerning pH</option>
+              <option value="2">Naked and Acidi-fied</option>
+            </select>
+            <button id="start-btn" class="primary-btn">Start Run</button>
+            <button id="restart-btn" class="secondary-btn">Reset</button>
+          </div>
+        </div>
+
+        <div class="game-hud">
+          <div class="hud-pill"><span>Current Level</span><strong id="hud-level-label">pH-ishy Business</strong></div>
+          <div class="hud-pill"><span>Lives Left</span><strong id="lives-banner">🦐 🦐 🦐</strong></div>
+          <div class="hud-pill"><span>Points</span><strong id="hud-score-line">0 | High 0</strong></div>
+        </div>
+
+        <div class="legend-row">
+          <span>🦐 Shrimp</span>
+          <span>🦑 Squid</span>
+          <span>🐟 Cod</span>
+          <span>• Plankton</span>
+          <span>💣 Carbon dioxide</span>
+          <span>🪱 Worms</span>
+        </div>
+
+        <div class="board-shell">
+          <div id="board" class="board" aria-label="Game board"></div>
+          <div id="question-overlay" class="question-overlay">
+            <div id="question-card" class="question-card overlay-card">
+              <p id="question-difficulty" class="difficulty-tag">Waiting</p>
+              <p id="question-prompt">Press start to begin the easy question gate.</p>
+              <div id="answer-options" class="answer-options"></div>
+              <p id="question-progress" class="small-copy">Streak: 0 / 3</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mobile-controls">
+          <button data-dir="up">↑</button>
+          <div class="middle-controls">
+            <button data-dir="left">←</button>
+            <button data-dir="down">↓</button>
+            <button data-dir="right">→</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="side-panel">
+        <section class="card">
+          <h3>Instructions</h3>
+          <div class="message-card">
+            <p>Use the arrow keys or the on-screen controls to move the shrimp.</p>
+            <p>Collect plankton, carbon dioxide, and worms while moving around the whole reef.</p>
+            <p>Carbon dioxide flips the colors and turns the squid into fast cod for a moment.</p>
+            <p>Worms do the opposite: they make the fish slower and the shrimp faster.</p>
+            <p>Answer 3 questions in a row to open each level, and answer another question whenever a squid catches you.</p>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3>Level Messages</h3>
+          <div id="message-card" class="message-card">
+            <p>Custom messages after each level will appear here.</p>
+          </div>
+        </section>
+
+        <section class="card">
+          <h3>Leaderboard</h3>
+          <p id="leaderboard-note" class="small-copy">
+            Shared leaderboard is ready for Google Apps Script. Until then, scores stay local to this browser.
+          </p>
+          <button id="seed-leaderboard-btn" class="secondary-btn">Add Test Leaderboard Data</button>
+          <section id="catch-of-day" class="catch-banner">
+            <h4>🎣 Catch of the Day</h4>
+            <p class="small-copy">Best overall shrimp across all saved runs</p>
+            <div id="catch-of-day-body" class="catch-body">
+              <p>No saved runs yet—be the first to make waves.</p>
+            </div>
+          </section>
+          <div class="leaderboard-toolbar">
+            <button class="leaderboard-filter active" data-filter="all">All-time</button>
+            <button class="leaderboard-filter" data-filter="weekly">Weekly</button>
+            <button class="leaderboard-filter" data-filter="daily">Daily</button>
+          </div>
+          <div class="leaderboard-grid">
+            <section class="leaderboard-card">
+              <h4>🧪 Acidification Leaders</h4>
+              <p class="small-copy">Best full-run time through pH-resh and cool, CO₂ncerning pH, and Naked and Acidi-fied.</p>
+              <p id="fastest-best" class="leaderboard-best">Your Best: --</p>
+              <ol id="fastest-list" class="leaderboard-list"></ol>
+            </section>
+            <section class="leaderboard-card">
+              <h4>🦐 Shrimp Showdown</h4>
+              <p class="small-copy">Best quiz accuracy across each player's runs.</p>
+              <p id="claws-best" class="leaderboard-best">Your Accuracy: --</p>
+              <ol id="claws-list" class="leaderboard-list"></ol>
+            </section>
+            <section class="leaderboard-card">
+              <h4>🔬 Calcification Rankings</h4>
+              <p class="small-copy">Longest survival time with most severe acidification level reached.</p>
+              <p id="survivor-best" class="leaderboard-best">Your Survival: --</p>
+              <ol id="survivor-list" class="leaderboard-list"></ol>
+            </section>
+          </div>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <script type="py" src="./main.py?v=20260428ad"></script>
+</body>
+</html>
